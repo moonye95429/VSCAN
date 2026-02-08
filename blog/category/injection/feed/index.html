@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Injection &#8211; VSCAN | 網站安全弱點檢測</title>
+	<atom:link href="http://vscan.local/blog/category/injection/feed/" rel="self" type="application/rss+xml" />
+	<link>http://vscan.local</link>
+	<description>網站弱點掃描服務 &#124; 程式碼弱點掃描服務</description>
+	<lastBuildDate>Sat, 03 Mar 2018 15:03:03 +0000</lastBuildDate>
+	<language>zh-TW</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=6.9.1</generator>
+	<item>
+		<title>Cross-Site Scripting</title>
+		<link>http://vscan.local/blog/cross-site-scripting/</link>
+		
+		<dc:creator><![CDATA[vscan]]></dc:creator>
+		<pubDate>Wed, 28 Feb 2018 14:40:16 +0000</pubDate>
+				<category><![CDATA[Cross-Site Scripting]]></category>
+		<category><![CDATA[HTTP Header]]></category>
+		<category><![CDATA[Injection]]></category>
+		<guid isPermaLink="false">http://vscan.local/?p=2441</guid>
+
+					<description><![CDATA[<p>Cross-Site Scripting (XSS) 對網站而言，是一個大麻煩，不只是其弱點容易被發現與使用，被利用後所造成的後果更是無法預期! 現今幾乎所有的...</p>
+<p>這篇文章 <a rel="nofollow" href="http://vscan.local/blog/cross-site-scripting/">Cross-Site Scripting</a> 最早出現於 <a rel="nofollow" href="http://vscan.local">VSCAN | 網站安全弱點檢測</a>。</p>
+]]></description>
+										<content:encoded><![CDATA[<p>Cross-Site Scripting (XSS) 對網站而言，是一個大麻煩，不只是其弱點容易被發現與使用，被利用後所造成的後果更是無法預期! 現今幾乎所有的網站都會使用到 Javascript，很少純粹使用 HTML 語言，這導致使用者必須強迫接受 script 指令，在這個前提下，XSS 就是利用用戶端執行 script 時，埋入惡意程式，進而掌握機密資訊或後門，來達成竊取身份或遠端監控等目標。</p>
+<p>&nbsp;</p>
+<p>Cross-Site Scripting 可以分為反射式(Reflected)、儲存式(Stored)：</p>
+<ul>
+<li>
+<h4><a href="https://capec.mitre.org/data/definitions/591.html" target="_blank" rel="noopener">Reflected XSS</a>  利用網站從存取可從外部修改的參數時，未經驗證而被埋入惡意語法，通常是利用可供輸入的欄位表單或可經proxy 修改的參數等功能，埋入惡意 script 語法，再將惡意連結偽裝讓受害人點擊，藉此騙過伺服器驗證而被盜取用戶端的身分資訊，並傳至第三方站台做為收集或掌控。</h4>
+</li>
+<li>
+<h4><a href="https://capec.mitre.org/data/definitions/592.html" target="_blank" rel="noopener">Stored XSS</a> 則為利用類似留言板等網站功能，將外部輸入的惡意語法直接儲存在資料庫，當每個用戶存取到該頁面時，都會讀取到該惡意行為而被攻擊，受害者的層面更為廣大。</h4>
+</li>
+</ul>
+<p>&nbsp;</p>
+<figure id="attachment_2472" aria-describedby="caption-attachment-2472" style="width: 580px" class="wp-caption alignnone"><img fetchpriority="high" decoding="async" class="size-full wp-image-2472" src="http://vscan.local/wp-content/uploads/2018/03/RXSS.gif" alt="" width="580" height="389" /><figcaption id="caption-attachment-2472" class="wp-caption-text">Reflected XSS</figcaption></figure>
+<p>&nbsp;</p>
+<p>由此可知，XSS 的攻擊面向很多樣化，就算針對特殊符號阻擋，還是可能利用編碼或其他格式來構成script 語法，只要想辦法避開檢驗規則即可，而不像 <a href="http://vscan.local/blog/sql-injection/" target="_blank" rel="noopener">SQL injection</a> 只能符合 SQL 的語法，相對於HTML 格式嚴謹許多。就如從外部輸入 onmouseover=alert(document.cookie) ，其中沒使用到&lt; &gt;等跳脫字元，但瀏覽器認定為合法的HTML事件而被執行，再加上可編成其他格式來逃避驗證規則，難怪此弱點仍然是眾多駭客攻打網站的首選。</p>
+<p>&nbsp;</p>
+<p>防禦方法可參考如 <a href="http://vscan.local/blog/http-header-security/" target="_blank" rel="noopener">HTTP Header</a> 安全性所述，對 Header 加入安全設定防止被竊取機密資訊，或 <a href="http://vscan.local/blog/injection-attack/" target="_blank" rel="noopener">Injection Attack</a> 的通用原則，對可竄改的外部來源做過濾驗證，有幾項原則可參考：</p>
+<ul>
+<li>
+<h4>不要將不信任資料放入 HTML 中，但通常難以達成。</h4>
+</li>
+<li>
+<h4>不信任資料放入 HTML 前須先進行編碼特殊字元，例如 &amp;  &lt;  &gt;  &#8221;  &#8216; 及 / 等字元。</h4>
+</li>
+<li>
+<h4>不信任資料不建議放入 Javascript ，極度危險，因為難以確認編碼目標。</h4>
+</li>
+<li>
+<h4>不信任資料放入CSS 中需要經過編碼處理，HTML Style格式同樣會造成跳脫。</h4>
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>當然最安全方法是使用白名單政策，可使用正則表示式(Regular Expression) 來限定外部參數的資料格式，但通常很難符合網站功能的需求，因此會採用黑名單方式，可藉由第三方套件或開發語言原生的安全套件來過濾跳脫字元，如 OWASP 的 <a href="https://www.owasp.org/index.php/Category:OWASP_Enterprise_Security_API" target="_blank" rel="noopener">ESAPI</a> 專案或微軟原生提供的 <a href="https://www.owasp.org/index.php/.NET_AntiXSS_Library" target="_blank" rel="noopener">AntiXSS</a> 套件等，都是經測試防禦效果較為全面的選擇，並有經過<a href="http://boldersecurity.github.io/encoder-comparison-reference/" target="_blank" rel="noopener">第三方單位</a>比較針對各字元編碼的成效。</p>
+<p>&nbsp;</p>
+<p><strong><em>ESAPI</em></strong></p>
+<p><em>輸入端驗證</em><br />
+<em> String validatedFirstName = ESAPI.validator().getValidInput(&#8220;FirstName&#8221;,</em><br />
+<em> myForm.getFirstName(), &#8220;FirstNameRegex&#8221;, 255, false, errorList);</em><br />
+<em> boolean isValidFirstName = ESAPI.validator().isValidInput(&#8220;FirstName&#8221;,</em><br />
+<em> myForm.getFirstName(), &#8220;FirstNameRegex&#8221;, 255, false);</em></p>
+<p><em>輸出端編碼</em><br />
+<em> String safeOutput = ESAPI.encoder().encodeForHTML( clean encoded output Comment );</em></p>
+<p>&nbsp;</p>
+<p><strong><em>AntiXSS</em></strong></p>
+<p><em>HtmlEncode Method： 將內容經過編碼</em></p>
+<p><em>GetSafeHtml  Method： 輸出完整的HTML架構</em></p>
+<p><em>GetSafeHtmlFragment  Method： 將輸入的HTML片段輸出</em></p>
+<p>&nbsp;</p>
+<p>這篇文章 <a rel="nofollow" href="http://vscan.local/blog/cross-site-scripting/">Cross-Site Scripting</a> 最早出現於 <a rel="nofollow" href="http://vscan.local">VSCAN | 網站安全弱點檢測</a>。</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>SQL Injection</title>
+		<link>http://vscan.local/blog/sql-injection/</link>
+		
+		<dc:creator><![CDATA[vscan]]></dc:creator>
+		<pubDate>Wed, 15 Nov 2017 13:37:38 +0000</pubDate>
+				<category><![CDATA[Injection]]></category>
+		<category><![CDATA[SQL injection]]></category>
+		<guid isPermaLink="false">http://vscan.local/?p=2357</guid>
+
+					<description><![CDATA[<p>SQL Injection 蟬聯 OWASP TOP 10 冠軍寶座從2013年版到最新的2017年版，可見其造成的傷害及普遍性之高，畢竟開發人員在將外部參數丟...</p>
+<p>這篇文章 <a rel="nofollow" href="http://vscan.local/blog/sql-injection/">SQL Injection</a> 最早出現於 <a rel="nofollow" href="http://vscan.local">VSCAN | 網站安全弱點檢測</a>。</p>
+]]></description>
+										<content:encoded><![CDATA[<p>SQL Injection 蟬聯 OWASP TOP 10 冠軍寶座從2013年版到最新的2017年版，可見其造成的傷害及普遍性之高，畢竟開發人員在將外部參數丟入 SQL 命令列時，為了方便就直接帶入，省略了過濾或用參數化的方式，相信有寫過串接 Database 的網站開發人員都會有的經驗。</p>
+<p>SQL Injection 為透過外部使用者的輸入或可供改造的參數，未經驗證就帶入 SQL 相關指令被執行，導致跳脫原先預期的行為，變成攻擊者想要的行為。攻擊行為可利用 SQL 的指令如 SELECT、UPDATE 或 DELETE 等來造成資料庫非預期的行為，若執行權限又沒特別去做區分，等於將整個資料庫被外部任意存取與動作，甚至可用來執行指令碼，後果將難以彌補！</p>
+<p>&nbsp;</p>
+<h4>SQL Injection 攻擊型態類型</h4>
+<ul>
+<li><a href="https://capec.mitre.org/data/definitions/7.html" target="_blank" rel="noopener"><span style="font-size: medium;">CAPEC-7：盲目的SQL注入</span></a></li>
+<li><a href="https://capec.mitre.org/data/definitions/66.html" target="_blank" rel="noopener"><span style="font-size: medium;">CAPEC-66：SQL注入</span></a></li>
+<li><a href="https://capec.mitre.org/data/definitions/108.html" target="_blank" rel="noopener"><span style="font-size: medium;">CAPEC-108：通過SQL注入執行命令行</span></a></li>
+<li><a href="https://capec.mitre.org/data/definitions/109.html" target="_blank" rel="noopener"><span style="font-size: medium;">CAPEC-109：對象關係映射注入</span></a></li>
+<li><a href="https://capec.mitre.org/data/definitions/110.html" target="_blank" rel="noopener"><span style="font-size: medium;">CAPEC-110：通過SOAP參數篡改進行SQL注入</span></a></li>
+<li><a href="https://capec.mitre.org/data/definitions/470.html" target="_blank" rel="noopener"><span style="font-size: medium;">CAPEC-470：從數據庫擴展對操作系統的控制</span></a></li>
+</ul>
+<p>&nbsp;</p>
+<p>綜合這幾種類型，可以得知為防範此攻擊，為當外部參數進入SQL 陳述式(Statement)前，需再經過驗證格式是否合法，是否有隱藏特殊符號等檢查，主要有以下幾種方法：</p>
+<p>&nbsp;</p>
+<p><strong>參數化</strong><br />
+將參數經過 Parameter 或 Prepare 等可用來對 SQL 參數做執行前的型態轉換，若有特殊字元將無法產生攻擊作用，最為推薦此種方法！</p>
+<p><em>.NET</em><br />
+<em> String query = &#8220;SELECT account_balance FROM user_data WHERE user_name = &#8220;</em><br />
+<em> + request.getParameter(&#8220;customerName&#8221;);</em></p>
+<p><em>try {</em><br />
+<em> Statement statement = connection.createStatement( … );</em><br />
+<em> ResultSet results = statement.executeQuery( query );</em><br />
+<em> }</em></p>
+<p><em>PHP</em><br />
+<em> $preparedStatement = $db-&gt;prepare(&#8216;INSERT INTO table (column) VALUES (:column)&#8217;); $preparedStatement-&gt;execute(array(&#8216;column&#8217; =&gt; $unsafeValue));</em></p>
+<p>&nbsp;</p>
+<p><strong>替代字元</strong><br />
+使用 Replace() 等方法來將特定字元做替換，但可能攻擊字元稍微經過變化或加密後，變成誤擋或漏檔等結果。</p>
+<p><em>string sql = &#8220;SELECT * FROM WIDGETS WHERE ID=&#8221; +badValue.Replace(&#8220;&#8216;&#8221;,&#8221;&#8221;&#8221;);</em></p>
+<p>&nbsp;</p>
+<p><strong>正則表達式</strong><br />
+利用 Regular Expression 設定合法的格式，直接用白名單方式限定參數的內容，這就變成需根據資料的不同來調整對應的 Regex，雖然嚴謹但較為麻煩，但有可能產生誤擋或漏擋的情況發生。</p>
+<p>&nbsp;</p>
+<p>以上幾種防範方法適用於 <a href="http://vscan.local/blog/injection-attack/">Injection attack</a> 類型的攻擊行為，可針對外部不被信任的參數做驗證與過濾處理，避免產生不可預期的行為，可視資料的多樣性與參數用途來選擇相對應的防禦方式。</p>
+<p>&nbsp;</p>
+<p>這篇文章 <a rel="nofollow" href="http://vscan.local/blog/sql-injection/">SQL Injection</a> 最早出現於 <a rel="nofollow" href="http://vscan.local">VSCAN | 網站安全弱點檢測</a>。</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>Injection Attack</title>
+		<link>http://vscan.local/blog/injection-attack/</link>
+		
+		<dc:creator><![CDATA[vscan]]></dc:creator>
+		<pubDate>Thu, 15 Jun 2017 15:05:21 +0000</pubDate>
+				<category><![CDATA[Injection]]></category>
+		<category><![CDATA[SQL injection]]></category>
+		<guid isPermaLink="false">http://vscan.local/?p=2349</guid>
+
+					<description><![CDATA[<p>Injection Attack (注入式攻擊)為一種利用外部不被信任的輸入來源，未經驗證就被直接帶入後端處理，導致利用跳脫字元或編碼等方式造成攻擊字串被執行，...</p>
+<p>這篇文章 <a rel="nofollow" href="http://vscan.local/blog/injection-attack/">Injection Attack</a> 最早出現於 <a rel="nofollow" href="http://vscan.local">VSCAN | 網站安全弱點檢測</a>。</p>
+]]></description>
+										<content:encoded><![CDATA[<p>Injection Attack (注入式攻擊)為一種利用外部不被信任的輸入來源，未經驗證就被直接帶入後端處理，導致利用跳脫字元或編碼等方式造成攻擊字串被執行，進而發生無法預期行為，更由於其普遍性導致網路上有多種工具可協助進行攻擊，不需要高深技巧，可想而知其嚴重性！</p>
+<p>&nbsp;</p>
+<h4>常見的 Injection attack</h4>
+<ul>
+<li><strong><a href="http://vscan.local/blog/sql-injection/" target="_blank" rel="noopener"><span style="font-size: large;">SQL injection</span></a></strong></li>
+<li><a href="http://vscan.local/blog/cross-site-scripting/" target="_blank" rel="noopener"><strong><span style="font-size: medium;">Cross-site Scripting (XSS)</span></strong></a></li>
+<li><strong><span style="font-size: medium;">CRLF injection/Host Header</span></strong></li>
+<li><strong><span style="font-size: medium;">Code injection/OS cmd</span></strong></li>
+<li><strong><span style="font-size: medium;">SMTP injeciton</span></strong></li>
+<li><strong><span style="font-size: medium;">XPath injection</span></strong></li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>SQL injection</strong> 及 <strong>XSS</strong> 更是蟬聯 OWASP TOP 10 多年，可見其造成的傷害及普遍性之高，畢竟開發人員在將外部參數丟入 SQL 命令列時，為了方便時常就直接帶入，省略了過濾或參數化等方式，相信有寫過串接 Database 的網站開發人員都會有的經驗吧!</p>
+<p><strong>CRLF</strong> 則是利用 \r\n 換行字元切割 HTTP Header 並帶入攻擊行為，因為 Header 就是使用 \r\n 來做欄位的分離，而通常會搭配 XSS 來進行更危險的攻擊手法。</p>
+<p><strong>Code injeciton</strong> 則為由外部未經驗證的字串被直接使用 eval 或 system 等執行指令來執行，導致伺服器被執行未預期的程式行為，能造成的後果自然也是無法預期。</p>
+<p><strong>SMTP injection</strong> 為類似 CRLF 利用換行字元切割參數導致送出 SMTP 相關指令，常被第三方用來寄送匿名廣告信件(Relay)，從而演變成釣魚信件的進階持續式攻擊 (APT)。</p>
+<p><strong>XPath injection</strong> 攻擊原理類似 SQL injection，利用跳脫字元繞過檢查，並帶入其他攻擊行為，若為處理使用者身分驗證等流程，則可能造成提權與機密資訊外洩等風險。</p>
+<p>&nbsp;</p>
+<p>Injection 式的攻擊手法都是直接信任外部輸入，沒有經過字元的檢查或進行過濾，或是只利用前端 javascript 檢查輸入行為，卻很容易被駭客繞過，能這麼長久被列為最常見的攻擊千萬不可忽略。</p>
+<p>&nbsp;</p>
+<p>這篇文章 <a rel="nofollow" href="http://vscan.local/blog/injection-attack/">Injection Attack</a> 最早出現於 <a rel="nofollow" href="http://vscan.local">VSCAN | 網站安全弱點檢測</a>。</p>
+]]></content:encoded>
+					
+		
+		
+			</item>
+	</channel>
+</rss>
